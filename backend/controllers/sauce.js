@@ -86,14 +86,13 @@ exports.likeSauce = (req, res, next) => {
       switch (like) {
         case -1:
           if (usersLikedIndex != -1) {
-            sauce.usersLiked.splice(usersLikedIndex);
-            sauce.likes -= 1;
+            throw new Error("Veuillez annuler votre like");
           }
           if (usersDislikedIndex == -1) {
             sauce.usersDisliked.push(userId);
             sauce.dislikes += 1;
           } else {
-            throw new Error("Un seul dislike possible");
+            throw new Error("Dislike déjà enregistré");
           }
           break;
 
@@ -110,8 +109,7 @@ exports.likeSauce = (req, res, next) => {
 
         case 1:
           if (usersDislikedIndex != -1) {
-            sauce.usersDisliked.splice(usersDislikedIndex);
-            sauce.dislikes -= 1;
+            throw new Error("Veuillez annuler votre dislike");
           }
           if (usersLikedIndex == -1) {
             sauce.usersLiked.push(userId);
@@ -123,7 +121,7 @@ exports.likeSauce = (req, res, next) => {
       }
       sauce
         .save()
-        .then(() => res.status(200).json({ message: "Like pris en compte !" }))
+        .then(() => res.status(200).json({ message: "Avis pris en compte !" }))
         .catch((error) => res.status(400).json({ error }));
     })
     .catch((error) => res.status(500).json({ error }));
