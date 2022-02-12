@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const dotenv = require('dotenv').config();
 
 const User = require("../models/User");
 
@@ -22,7 +23,7 @@ exports.signup = (req, res, next) => {
 exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
     // Ici, même si l'utilisateur n'est pas trouvé, mongoose renvoit quand même une promise résolue
-    .then((user) => {
+    .then(user => {
       if (!user) {
         return res.status(401).json({ error: "Utilisateur non trouvé!" });
       }
@@ -35,7 +36,7 @@ exports.login = (req, res, next) => {
           res.status(200).json({
             userId: user._id,
             // .sign ({payload = données à encoder},{clé d'encodage},{configuration})
-            token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
+            token: jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, {
               expiresIn: "24h",
             }),
           });

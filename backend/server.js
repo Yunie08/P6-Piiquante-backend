@@ -1,5 +1,6 @@
 const http = require("http");
 const app = require("./app");
+const dotenv = require('dotenv').config();
 
 // Return valid port
 const normalizePort = (val) => {
@@ -47,4 +48,4 @@ server.on("listening", () => {
   console.log("Listening on " + bind);
 });
 
-server.listen(port);
+server.listen(port, process.env.HOST);
