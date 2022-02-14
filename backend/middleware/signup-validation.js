@@ -3,11 +3,13 @@ const { validateSchemaDeps } = require('ajv/dist/vocabularies/applicator/depende
 const ajv = new Ajv({allErrors: true});
 require('ajv-errors')(ajv, {singleError: true});
 
+
+
 const userSchema = {
   type: "object",
   properties: {
-    email: {type: "string", pattern: "^[\w\.-]+@[\w\.-]+\.\w{2,4}$"},
-    password: {type: "string", pattern: "^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$"}
+    email: {type: "string", pattern: "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"},
+    password: {type: "string", pattern: "(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"}
   },
   required: ["email", "password"],
   errorMessage: {
@@ -24,12 +26,8 @@ const validate = ajv.compile(userSchema);
 module.exports = (req, res, next) => {
   const valid = validate(req.body);
   if (!valid) {
-    res.status(400).json({error : validate.errors});
-    // let errConcatenated;
-    // for (err in validate.errors){
-    //   errConcatenated += err.message + ' ; ';
-    // }
-    // res.status(400).json({error : errConcatenated});
+
+    res.status(400).json({error : validate.errors[0]});
   }
   else {
     next();
