@@ -1,8 +1,8 @@
-const dotenv = require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const helmet = require('helmet')
+const dotenv = require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const path = require("path");
+const helmet = require("helmet");
 
 const userRoutes = require("./routes/user");
 const sauceRoutes = require("./routes/sauce");
@@ -12,11 +12,13 @@ const app = express();
 app.use(helmet());
 
 // Connection to database
+const DB = process.env.DATABASE.replace(
+  "<PASSWORD>",
+  process.env.DB_PASSWORD
+).replace("<USER>", process.env.DB_USER);
+
 mongoose
-  .connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.nksbe.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(DB, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 
