@@ -5,6 +5,10 @@ const fs = require("fs");
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
+  // Check that user doesn't create sauce with an other user id
+  if (sauceObject.userId != req.auth.userId) {
+    return res.status(403).json({ error: "Requête non autorisée!" });
+  }
   const sauce = new Sauce({
     ...sauceObject,
     likes: 0,
@@ -44,9 +48,7 @@ exports.deleteSauce = (req, res, next) => {
       }
       // Check whether the user is the one who created the sauce
       if (sauce.userId !== req.auth.userId) {
-        return res
-          .status(403)
-          .json({error : "Requête non autorisée!"});
+        return res.status(403).json({ error: "Requête non autorisée!" });
       }
       // Delete sauce in database and picture in static folder
       const filename = sauce.imageUrl.split("/images/")[1];
@@ -71,7 +73,7 @@ exports.modifySauce = (req, res, next) => {
     : { ...req.body };
   // Check whether the user is the one who created the sauce
   if (sauceObject.userId !== req.auth.userId) {
-    return res.status(403).json({ error: new Error("Requête non autorisée!") });
+    return res.status(403).json({ error: "Requête non autorisée!" });
   }
   // Save modifications
   Sauce.updateOne(
@@ -95,11 +97,9 @@ exports.likeSauce = (req, res, next) => {
         // Dislike
         case -1:
           if (usersLikedIndex != -1) {
-            return res
-              .status(400)
-              .json({
-                error: "Veuillez annuler votre like avant d'ajouter un dislike",
-              });
+            return res.status(400).json({
+              error: "Veuillez annuler votre like avant d'ajouter un dislike",
+            });
           }
           if (usersDislikedIndex == -1) {
             sauce.usersDisliked.push(userId);
@@ -124,11 +124,9 @@ exports.likeSauce = (req, res, next) => {
         // Like
         case 1:
           if (usersDislikedIndex != -1) {
-            return res
-              .status(400)
-              .json({
-                error: "Veuillez annuler votre dislike avant d'ajouter un like",
-              });
+            return res.status(400).json({
+              error: "Veuillez annuler votre dislike avant d'ajouter un like",
+            });
           }
           if (usersLikedIndex == -1) {
             sauce.usersLiked.push(userId);
