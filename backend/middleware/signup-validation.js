@@ -1,35 +1,38 @@
-const Ajv = require('ajv');
-const { validateSchemaDeps } = require('ajv/dist/vocabularies/applicator/dependencies');
-const ajv = new Ajv({allErrors: true});
-require('ajv-errors')(ajv, {singleError: true});
+const passwordValidator = require("password-validator");
+const emailValidator = require("email-validator");
 
-
-
-const userSchema = {
-  type: "object",
-  properties: {
-    email: {type: "string", pattern: "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"},
-    password: {type: "string", pattern: "(?=^.{8,}$)(?=.*\\d)(?=.*[!@#$%^&*]+)(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"}
-  },
-  required: ["email", "password"],
-  errorMessage: {
-    properties: {
-      email: " Format d'adresse email non valide ",
-      password: " Le mot de passe doit contenir au minimum 8 caractères dont 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial "
-    }
-  }
-}
-
-const validate = ajv.compile(userSchema);
-
+let schemaPassword = new passwordValidator();
+schemaPassword
+  .is()
+  .min(8)
+  .is()
+  .max(100)
+  .has()
+  .uppercase(1)
+  .has()
+  .lowercase(1)
+  .has()
+  .symbols(1)
+  .has()
+  .digits(1);
 
 module.exports = (req, res, next) => {
-  const valid = validate(req.body);
-  if (!valid) {
-
-    res.status(400).json({error : validate.errors[0]});
+  const emailIsValid = emailValidator.validate(req.body.email);
+  const passwordIsValid = schemaPassword.validate(req.body.password);
+  console.log(emailIsValid, passwordIsValid);
+  let message = "";
+  if (!emailIsValid) {
+    message += "L'adresse email doit suivre le format abc@exemple.com. ";
   }
-  else {
+  if (!passwordIsValid) {
+    message +=
+      "Le mot de passe doit contenir entre 8 et 25 caractères dont au moins 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial";
+  }
+  if (!emailIsValid || !passwordIsValid) {
+    const error = new Error(message);
+    // console.log(error);
+    return res.status(400).json({ message: error.message });
+  } else {
     next();
   }
 };
