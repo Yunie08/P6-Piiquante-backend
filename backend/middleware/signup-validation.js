@@ -1,12 +1,12 @@
-const passwordValidator = require("password-validator");
-const emailValidator = require("email-validator");
+const PasswordValidator = require('password-validator');
+const emailValidator = require('email-validator');
 
-let schemaPassword = new passwordValidator();
+const schemaPassword = new PasswordValidator();
 schemaPassword
   .is()
   .min(8)
   .is()
-  .max(100)
+  .max(25)
   .has()
   .uppercase(1)
   .has()
@@ -19,20 +19,17 @@ schemaPassword
 module.exports = (req, res, next) => {
   const emailIsValid = emailValidator.validate(req.body.email);
   const passwordIsValid = schemaPassword.validate(req.body.password);
-  console.log(emailIsValid, passwordIsValid);
-  let message = "";
+  let message = '';
   if (!emailIsValid) {
-    message += "L'adresse email doit suivre le format abc@exemple.com. ";
+    message += "L'adresse email doit suivre le format abc@exemple.com.\n";
   }
   if (!passwordIsValid) {
     message +=
-      "Le mot de passe doit contenir entre 8 et 25 caractères dont au moins 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial";
+      'Le mot de passe doit contenir entre 8 et 25 caractères dont au moins 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial';
   }
   if (!emailIsValid || !passwordIsValid) {
     const error = new Error(message);
-    // console.log(error);
     return res.status(400).json({ message: error.message });
-  } else {
-    next();
   }
+  next();
 };

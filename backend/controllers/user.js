@@ -1,8 +1,7 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv").config();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-const User = require("../models/User");
+const User = require('../models/User');
 
 exports.signup = (req, res, next) => {
   bcrypt
@@ -14,10 +13,11 @@ exports.signup = (req, res, next) => {
       });
       user
         .save()
-        .then(() => res.status(201).json({ message: "Utilisateur créé!" }))
+        .then(() => res.status(201).json({ message: 'Utilisateur créé!' }))
         .catch((error) =>
           res.status(400).json({
-            message: "Utilisateur déjà enregistré!",
+            message:
+              'Utilisateur déjà enregistré! Veuillez vous logger ou choisir un autre email',
             error: error,
           })
         );
@@ -30,14 +30,14 @@ exports.login = (req, res, next) => {
     // Ici, même si l'utilisateur n'est pas trouvé, mongoose renvoit quand même une promise résolue
     .then((user) => {
       if (!user) {
-        const error = new Error("Utilisateur inconnu!");
+        const error = new Error('Utilisateur inconnu!');
         return res.status(401).json({ message: error.message });
       }
       bcrypt
         .compare(req.body.password, user.password)
         .then((valid) => {
           if (!valid) {
-            return res.status(401).json({ error: "Mot de passe incorrect!" });
+            return res.status(401).json({ error: 'Mot de passe incorrect!' });
           }
           res.status(200).json({
             userId: user._id,
