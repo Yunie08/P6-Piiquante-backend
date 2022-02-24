@@ -5,7 +5,7 @@ const Sauce = require('../models/Sauce');
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
-  // Check that user doesn't create sauce with an other user id
+  // Check that user doesn't create a sauce with an other user id
   if (sauceObject.userId !== req.auth.userId) {
     const error = new Error('Requête non autorisée!');
     return res.status(403).json({ error: error.message });
@@ -26,7 +26,7 @@ exports.createSauce = (req, res, next) => {
     .catch((error) => res.status(400).json(error));
 };
 
-// Return all sauces in database
+// Return all sauces from database
 exports.getAllSauce = (req, res, next) => {
   Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
@@ -42,12 +42,12 @@ exports.getOneSauce = (req, res, next) => {
 
 // Delete existing sauce
 exports.deleteSauce = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id })
+  Sauce.findById(req.params.id)
     .then((sauce) => {
       if (!sauce) {
         return res.status(404).json({ error: new Error('Objet non trouvé!') });
       }
-      // Check whether the user is the one who created the sauce
+      // Authorization check : the user is the one who created the sauce
       if (sauce.userId !== req.auth.userId) {
         return res.status(403).json({ error: 'Requête non autorisée!' });
       }
@@ -72,7 +72,7 @@ exports.modifySauce = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-  // Check whether the user is the one who created the sauce
+  // Authorization check: the user is the one who created the sauce
   if (sauceObject.userId !== req.auth.userId) {
     return res.status(403).json({ error: 'Requête non autorisée!' });
   }
@@ -89,12 +89,12 @@ exports.modifySauce = (req, res, next) => {
 exports.likeSauce = (req, res, next) => {
   const { userId, like } = req.body;
 
-  Sauce.findOne({ _id: req.params.id })
+  Sauce.findById(req.params.id)
     .then((sauce) => {
       const usersLikedIndex = sauce.usersLiked.indexOf(userId);
       const usersDislikedIndex = sauce.usersDisliked.indexOf(userId);
       switch (like) {
-        // Dislike
+        // Dislike (like = -1)
         case -1:
           if (usersLikedIndex !== -1) {
             return res.status(400).json({
@@ -109,7 +109,7 @@ exports.likeSauce = (req, res, next) => {
           }
           break;
 
-        // Cancel like or dislike
+        // Cancel like or dislike (like = 0)
         case 0:
           if (usersDislikedIndex !== -1) {
             sauce.usersDisliked.splice(usersDislikedIndex, 1);
@@ -121,7 +121,7 @@ exports.likeSauce = (req, res, next) => {
           }
           break;
 
-        // Like
+        // Like (like = 1)
         case 1:
           if (usersDislikedIndex !== -1) {
             return res.status(400).json({
