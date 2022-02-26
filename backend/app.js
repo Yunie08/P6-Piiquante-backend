@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce');
@@ -40,14 +42,21 @@ app.use((req, res, next) => {
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 100, // Limit each IP to 100 requests per `window`, here 1 hour
-  message:
-    'Trop de requêtes envoyées depuis cette adresse IP. Veuillez réessayer dans une heure.',
+  message: 'Too many request from this IP, please try again in an hour',
 });
 
 app.use(express.json());
 
-// Middleware declaration
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Limit repeated requests from same id
 app.use(limiter);
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Middleware declaration
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/auth', userRoutes);
 app.use('/api/sauces', sauceRoutes);
