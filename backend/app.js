@@ -5,7 +5,6 @@ const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce');
@@ -52,9 +51,6 @@ app.use(mongoSanitize());
 
 // Limit repeated requests from same id
 app.use(limiter);
-
-// Data sanitization against XSS
-app.use(xss());
 
 // Middleware declaration
 app.use('/images', express.static(path.join(__dirname, 'images')));
