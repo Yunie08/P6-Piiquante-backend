@@ -12,20 +12,22 @@ schemaPassword
   .has()
   .lowercase(1)
   .has()
-  .symbols(1)
+  .digits(1)
   .has()
-  .digits(1);
+  .not()
+  .spaces();
 
 module.exports = (req, res, next) => {
   const emailIsValid = emailValidator.validate(req.body.email);
   const passwordIsValid = schemaPassword.validate(req.body.password);
   let message = '';
   if (!emailIsValid) {
-    message += "L'adresse email doit suivre le format abc@exemple.com.\n";
+    message +=
+      'Email address invalid. Must use the following pattern: abc@exemple.com.\n';
   }
   if (!passwordIsValid) {
     message +=
-      'Le mot de passe doit contenir entre 8 et 25 caractères dont au moins 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial';
+      'Password must be between 8 and 25 characters long, and contain at least 1 uppercase, 1 lowercase, 1 digit and no blank space.';
   }
   if (!emailIsValid || !passwordIsValid) {
     const error = new Error(message);
