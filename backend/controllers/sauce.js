@@ -7,7 +7,7 @@ exports.createSauce = (req, res, next) => {
   delete sauceObject._id;
   // Check that user doesn't create a sauce with an other user id
   if (sauceObject.userId !== req.auth.userId) {
-    const error = new Error('Requête non autorisée!');
+    const error = new Error('Unauthorized request');
     return res.status(403).json({ error: error.message });
   }
   const sauce = new Sauce({
@@ -22,18 +22,18 @@ exports.createSauce = (req, res, next) => {
   });
   sauce
     .save()
-    .then(() => res.status(201).json({ message: 'Sauce créée!' }))
+    .then(() => res.status(201).json({ message: 'Sauce created' }))
     .catch((error) => res.status(400).json(error));
 };
 
-// Return all sauces from database
+// Get all sauces from database
 exports.getAllSauce = (req, res, next) => {
   Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
     .catch((error) => res.status(400).json(error));
 };
 
-// Return sauce corresponding to a specific id
+// Get sauce corresponding to specified id
 exports.getOneSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauces) => res.status(200).json(sauces))
@@ -45,17 +45,17 @@ exports.deleteSauce = (req, res, next) => {
   Sauce.findById(req.params.id)
     .then((sauce) => {
       if (!sauce) {
-        return res.status(404).json({ error: new Error('Objet non trouvé!') });
+        return res.status(404).json({ error: new Error('Sauce not found') });
       }
       // Authorization check : the user is the one who created the sauce
       if (sauce.userId !== req.auth.userId) {
-        return res.status(403).json({ error: 'Requête non autorisée!' });
+        return res.status(403).json({ error: 'Unauthorized request' });
       }
       // Delete sauce in database and picture in static folder
       const filename = sauce.imageUrl.split('/images/')[1];
       fs.unlink(`images/${filename}`, () => {
         Sauce.deleteOne({ _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet supprimé' }))
+          .then(() => res.status(200).json({ message: 'Sauce deleted' }))
           .catch((error) => res.status(404).json({ error }));
       });
     })
@@ -74,14 +74,15 @@ exports.modifySauce = (req, res, next) => {
     : { ...req.body };
   // Authorization check: the user is the one who created the sauce
   if (sauceObject.userId !== req.auth.userId) {
-    return res.status(403).json({ error: 'Requête non autorisée!' });
+    return res.status(403).json({ error: 'Unauthorized request' });
   }
   // Save modifications
   Sauce.updateOne(
     { _id: req.params.id },
-    { ...sauceObject, _id: req.params.id }
+    { ...sauceObject, _id: req.params.id },
+    { runValidators: true }
   )
-    .then(() => res.status(200).json({ message: 'Sauce modifiée !' }))
+    .then(() => res.status(200).json({ message: 'Sauce modified' }))
     .catch((error) => res.status(400).json({ error }));
 };
 
@@ -98,14 +99,16 @@ exports.likeSauce = (req, res, next) => {
         case -1:
           if (usersLikedIndex !== -1) {
             return res.status(400).json({
-              error: "Veuillez annuler votre like avant d'ajouter un dislike",
+              error: 'Please cancel your "like" before adding a "dislike"',
             });
           }
           if (usersDislikedIndex === -1) {
             sauce.usersDisliked.push(userId);
             sauce.dislikes += 1;
           } else {
-            return res.status(400).json({ error: 'Un seul dislike autorisé' });
+            return res
+              .status(400)
+              .json({ error: 'Only one "dislike" authorized' });
           }
           break;
 
@@ -125,14 +128,16 @@ exports.likeSauce = (req, res, next) => {
         case 1:
           if (usersDislikedIndex !== -1) {
             return res.status(400).json({
-              error: "Veuillez annuler votre dislike avant d'ajouter un like",
+              error: 'Please cancel your "dislike" before adding a "like"',
             });
           }
           if (usersLikedIndex === -1) {
             sauce.usersLiked.push(userId);
             sauce.likes += 1;
           } else {
-            return res.status(400).json({ error: 'Un seul like autorisé' });
+            return res
+              .status(400)
+              .json({ error: 'Only one "like" authorized' });
           }
           break;
 
@@ -142,7 +147,12 @@ exports.likeSauce = (req, res, next) => {
       }
       sauce
         .save()
-        .then(() => res.status(200).json({ message: 'Avis pris en compte !' }))
+        .then(() =>
+          res.status(200).json({
+            message:
+              'Thank you for your review! It has been successfully saved.',
+          })
+        )
         .catch((error) => res.status(400).json({ error }));
     })
     .catch((error) => res.status(500).json({ error }));

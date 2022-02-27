@@ -13,11 +13,11 @@ exports.signup = (req, res, next) => {
       });
       user
         .save()
-        .then(() => res.status(201).json({ message: 'Utilisateur créé!' }))
+        .then(() => res.status(201).json({ message: 'User signed in !' }))
         .catch((error) =>
           res.status(400).json({
             message:
-              'Utilisateur déjà enregistré! Veuillez vous logger ou choisir un autre email',
+              'User already registered. Please login, or sign in with a different email address.',
             error: error,
           })
         );
@@ -30,14 +30,14 @@ exports.login = (req, res, next) => {
     // Ici, même si l'utilisateur n'est pas trouvé, mongoose renvoit quand même une promise résolue
     .then((user) => {
       if (!user) {
-        const error = new Error('Utilisateur inconnu!');
-        return res.status(401).json({ message: error.message });
+        const error = new Error('Unknown user!');
+        return res.status(401).json({ error: error.message });
       }
       bcrypt
         .compare(req.body.password, user.password)
         .then((valid) => {
           if (!valid) {
-            return res.status(401).json({ error: 'Mot de passe incorrect!' });
+            return res.status(401).json({ error: 'Incorrect password' });
           }
           res.status(200).json({
             userId: user._id,

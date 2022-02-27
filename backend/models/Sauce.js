@@ -4,29 +4,37 @@ const sauceSchema = mongoose.Schema({
   userId: {
     type: String,
     required: [true, 'A sauce must be created by a known user'],
+    trim: true,
   },
   name: {
     type: String,
     required: [true, 'A sauce must have a name'],
-    minLength: [5, 'Sauce name must be at least 5 character long'],
+    minLength: [5, 'Sauce name must be at least 5 characters long'],
+    maxLength: [20, 'Sauce name must be less than 20 characters long'],
     trim: true,
   },
   manufacturer: {
     type: String,
     required: [true, 'A sauce must have a manufacturer'],
-    minLength: [3, 'Sauce name must be at least 5 character long'],
+    minLength: [3, 'Sauce manufacturer must be at least 3 characters long'],
+    maxLength: [20, 'Sauce name must be less than 20 characters long'],
     trim: true,
   },
   description: {
     type: String,
     required: [true, 'A sauce must have a description'],
-    minLength: [20, 'Description must be at least 20 character long'],
+    minLength: [20, 'Description must be at least 20 characters long'],
+    maxLength: [2000, 'Description must be less than 2000 characters long'],
     trim: true,
   },
   mainPepper: {
     type: String,
     required: [true, 'A sauce must have a main pepper ingredient'],
-    minLength: [3, 'Sauce name must be at least 5 character long'],
+    minLength: [3, 'Main pepper ingredient must be at least 3 characters long'],
+    maxLength: [
+      20,
+      'Main pepper ingredient must be less than 20 characters long',
+    ],
     trim: true,
   },
   imageUrl: {

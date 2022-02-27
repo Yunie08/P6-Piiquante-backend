@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
     const { userId } = decodedToken;
     req.auth = { userId };
     if (req.body.userId && req.body.userId !== userId) {
-      throw new Error('User ID non valable');
+      throw new Error('Invalid user ID');
     } else {
       next();
     }
