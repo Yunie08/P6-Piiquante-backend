@@ -6,18 +6,26 @@ const MIME_TYPES = {
   'image/png': 'png',
 };
 
+const maxSize = 2097152; // 2Mo
+
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, 'images');
   },
   filename: (req, file, callback) => {
-    // supprime les espaces et les remplace par des '_'
+    // replaces blank spaces by underscores
     const name = file.originalname.split(' ').join('_').split('.')[0];
-    // applique une extension au fichier à partir du MIME type de l'image
+    // apply file extension corresponding to image MIME type
     const extension = MIME_TYPES[file.mimetype];
-    //callback(null, name + Date.now() + '.' + extension);
-    callback(null, `${name} ${Date.now()}.${extension}`);
+    callback(null, `${name}${Date.now()}.${extension}`);
   },
 });
 
-module.exports = multer({ storage }).single('image');
+const upload = multer({
+  storage,
+  limits: { fileSize: maxSize },
+}).single('image');
+
+module.exports = (req, res, next) => {
+  upload(req, res, (err) => (err ? res.status(400).json(err) : next()));
+};
