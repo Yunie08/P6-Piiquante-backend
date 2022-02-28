@@ -71,25 +71,30 @@ exports.modifySauce = (req, res, next) => {
           req.file.filename
         }`,
       }
-    : { ...req.body, imageUrl: undefined };
-  // Prevent like/dislike modification
-  const cleanLikeData = {
-    likes: undefined,
-    dislikes: undefined,
-    usersLiked: undefined,
-    usersDisliked: undefined,
-  };
+    : { ...req.body, imageUrl: undefined }; // to avoid model validation error
   // Authorization check: the user is the one who created the sauce
   if (sauceObject.userId !== req.auth.userId) {
     return res.status(403).json({ error: 'Unauthorized request' });
   }
   // Save modifications
-  Sauce.updateOne(
-    { _id: req.params.id },
-    { ...sauceObject, _id: req.params.id, ...cleanLikeData },
+  Sauce.findByIdAndUpdate(
+    req.params.id,
+    {
+      ...sauceObject,
+      _id: req.params.id,
+      // like/dislike data cannot be updated via this route
+      likes: undefined,
+      dislikes: undefined,
+      usersLiked: undefined,
+      usersDisliked: undefined,
+    },
     { runValidators: true } // activate model validators
   )
-    .then(() => res.status(200).json({ message: 'Sauce modified' }))
+    .then((sauce) =>
+      sauce
+        ? res.status(200).json({ message: 'Sauce modified' })
+        : res.status(404).json({ error: 'Sauce not found' })
+    )
     .catch((error) => res.status(400).json({ error }));
 };
 
