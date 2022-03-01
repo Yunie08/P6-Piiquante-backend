@@ -6,10 +6,17 @@ const sauceCtrl = require('../controllers/sauce');
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
 
+const dataValidation = require('../middleware/dataValidation');
+
 router
   .route('/')
   .get(auth, sauceCtrl.getAllSauce)
-  .post(auth, multer, sauceCtrl.createSauce);
+  .post(
+    auth,
+    multer,
+    dataValidation.validateInput(dataValidation.sauceRules),
+    sauceCtrl.createSauce
+  );
 
 router
   .route('/:id')

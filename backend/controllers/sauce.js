@@ -3,7 +3,8 @@ const Sauce = require('../models/Sauce');
 
 // Create sauce in database and save picture statically
 exports.createSauce = (req, res, next) => {
-  const sauceObject = JSON.parse(req.body.sauce);
+  // const sauceObject = JSON.parse(req.body.sauce);
+  const sauceObject = req.body.sauce;
   delete sauceObject._id;
   // Check that user doesn't create a sauce with an other user id
   if (sauceObject.userId !== req.auth.userId) {
