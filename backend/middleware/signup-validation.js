@@ -14,6 +14,8 @@ schemaPassword
   .has()
   .digits(1)
   .has()
+  .symbols(1)
+  .has()
   .not()
   .spaces();
 
@@ -27,7 +29,7 @@ module.exports = (req, res, next) => {
   }
   if (!passwordIsValid) {
     message +=
-      'Password must be between 8 and 25 characters long, and contain at least 1 uppercase, 1 lowercase, 1 digit and no blank space.';
+      'Password must be between 8 and 25 characters long, and contain at least 1 uppercase, 1 lowercase, 1 digit, 1 symbol and no blank space.';
   }
   if (!emailIsValid || !passwordIsValid) {
     const error = new Error(message);

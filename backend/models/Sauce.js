@@ -40,6 +40,7 @@ const sauceSchema = mongoose.Schema({
   imageUrl: {
     type: String,
     required: [true, 'A sauce must have an image'],
+    trim: true,
   },
   heat: {
     type: Number,
@@ -47,10 +48,10 @@ const sauceSchema = mongoose.Schema({
     min: [1, 'Minimal heat intensity is 1'],
     max: [10, 'Maximal heat intensity is 10'],
   },
-  likes: { type: Number, required: true },
-  dislikes: { type: Number, required: true },
-  usersLiked: { type: [String], required: true },
-  usersDisliked: { type: [String], required: true },
+  likes: { type: Number, default: 0 },
+  dislikes: { type: Number, default: 0 },
+  usersLiked: { type: [String], default: [] },
+  usersDisliked: { type: [String], default: [] },
 });
 
 module.exports = mongoose.model('Sauce', sauceSchema);
