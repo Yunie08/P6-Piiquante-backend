@@ -45,11 +45,11 @@ exports.deleteSauce = (req, res, next) => {
   Sauce.findById(req.params.id)
     .then((sauce) => {
       if (!sauce) {
-        return res.status(404).json({ error: new Error('Sauce not found') });
+        return res.status(404).json({ message: 'Sauce not found' });
       }
       // Authorization check : the user is the one who created the sauce
       if (sauce.userId !== req.auth.userId) {
-        return res.status(403).json({ error: 'Unauthorized request' });
+        return res.status(403).json({ message: 'Unauthorized request' });
       }
       // Delete sauce in database and picture in static folder
       const filename = sauce.imageUrl.split('/images/')[1];
@@ -74,7 +74,7 @@ exports.modifySauce = (req, res, next) => {
     : { ...req.body, imageUrl: undefined }; // to avoid model validation error
   // Authorization check: the user is the one who created the sauce
   if (sauceObject.userId !== req.auth.userId) {
-    return res.status(403).json({ error: 'Unauthorized request' });
+    return res.status(403).json({ message: 'Unauthorized request' });
   }
   // Save modifications
   Sauce.findByIdAndUpdate(
@@ -93,7 +93,7 @@ exports.modifySauce = (req, res, next) => {
     .then((sauce) =>
       sauce
         ? res.status(200).json({ message: 'Sauce modified' })
-        : res.status(404).json({ error: 'Sauce not found' })
+        : res.status(404).json({ message: 'Sauce not found' })
     )
     .catch((error) => res.status(400).json({ error }));
 };
@@ -111,7 +111,7 @@ exports.likeSauce = (req, res, next) => {
         case -1:
           if (usersLikedIndex !== -1) {
             return res.status(400).json({
-              error: 'Please cancel your "like" before adding a "dislike"',
+              message: 'Please cancel your "like" before adding a "dislike"',
             });
           }
           if (usersDislikedIndex === -1) {
@@ -120,7 +120,7 @@ exports.likeSauce = (req, res, next) => {
           } else {
             return res
               .status(400)
-              .json({ error: 'Only one "dislike" authorized' });
+              .json({ message: 'Only one "dislike" authorized' });
           }
           break;
 
@@ -140,7 +140,7 @@ exports.likeSauce = (req, res, next) => {
         case 1:
           if (usersDislikedIndex !== -1) {
             return res.status(400).json({
-              error: 'Please cancel your "dislike" before adding a "like"',
+              message: 'Please cancel your "dislike" before adding a "like"',
             });
           }
           if (usersLikedIndex === -1) {
@@ -149,20 +149,19 @@ exports.likeSauce = (req, res, next) => {
           } else {
             return res
               .status(400)
-              .json({ error: 'Only one "like" authorized' });
+              .json({ message: 'Only one "like" authorized' });
           }
           break;
 
         // Incorrect value
         default:
-          return res.status(400).json({ error: 'Bad request' });
+          return res.status(400).json({ message: 'Bad request' });
       }
       sauce
         .save()
         .then(() =>
           res.status(200).json({
-            message:
-              'Thank you for your review! It has been successfully saved.',
+            message: 'Your review has been successfully saved!',
           })
         )
         .catch((error) => res.status(400).json({ error }));

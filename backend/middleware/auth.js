@@ -8,11 +8,11 @@ module.exports = (req, res, next) => {
     const { userId } = decodedToken;
     req.auth = { userId };
     if (req.body.userId && req.body.userId !== userId) {
-      throw new Error('Invalid user ID');
+      throw new Error('Unauthorized request');
     } else {
       next();
     }
   } catch (error) {
-    res.status(403).json(error);
+    res.status(403).json({ message: error.message });
   }
 };
