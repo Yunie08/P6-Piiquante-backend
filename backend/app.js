@@ -12,7 +12,11 @@ const sauceRoutes = require('./routes/sauce');
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
 
 // Connection to database
 mongoose
