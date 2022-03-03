@@ -6,8 +6,6 @@ const MIME_TYPES = {
   'image/png': 'png',
 };
 
-const maxSize = 2097152; // 2Mo
-
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, 'images');
@@ -20,6 +18,9 @@ const storage = multer.diskStorage({
     callback(null, `${name}${Date.now()}.${extension}`);
   },
 });
+
+// Maximal authorized file size
+const maxSize = 2097152; // 2Mo
 
 const upload = multer({
   storage,

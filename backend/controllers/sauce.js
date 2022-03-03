@@ -1,14 +1,16 @@
 const fs = require('fs');
 const Sauce = require('../models/Sauce');
 
-// Create sauce in database and save picture statically
+// CREATE SAUCE in database and save picture statically
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
   // Check that user doesn't create a sauce with an other user id
   if (sauceObject.userId !== req.auth.userId) {
-    const error = new Error('Unauthorized request');
-    return res.status(403).json({ error: error.message });
+    return res.status(403).json({ message: 'Unauthorized request' });
+  }
+  if (!req.file) {
+    return res.status(400).json({ message: 'Please provide an image' });
   }
   const sauce = new Sauce({
     ...sauceObject,
@@ -26,21 +28,21 @@ exports.createSauce = (req, res, next) => {
     .catch((error) => res.status(400).json(error));
 };
 
-// Get all sauces from database
+// GET ALL sauces from database
 exports.getAllSauce = (req, res, next) => {
   Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
     .catch((error) => res.status(400).json(error));
 };
 
-// Get sauce corresponding to specified id
+// GET ONE sauce corresponding to specified id
 exports.getOneSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauces) => res.status(200).json(sauces))
     .catch((error) => res.status(400).json(error));
 };
 
-// Delete existing sauce
+// DELETE existing sauce
 exports.deleteSauce = (req, res, next) => {
   Sauce.findById(req.params.id)
     .then((sauce) => {
@@ -62,8 +64,9 @@ exports.deleteSauce = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-// Modify existing sauce with or without new picture
+// MODIFY existing sauce
 exports.modifySauce = (req, res, next) => {
+  // Handle the different request formats (if an image is provided or not)
   const sauceObject = req.file
     ? {
         ...JSON.parse(req.body.sauce),
@@ -88,7 +91,8 @@ exports.modifySauce = (req, res, next) => {
       usersLiked: undefined,
       usersDisliked: undefined,
     },
-    { runValidators: true } // activate model validators
+    // activate mongoose model validators
+    { runValidators: true }
   )
     .then((sauce) =>
       sauce
@@ -98,12 +102,14 @@ exports.modifySauce = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-// Add or cancel like and dislike and handle unauthorized double like or dislike
+// LIKE and dislike handler
 exports.likeSauce = (req, res, next) => {
   const { userId, like } = req.body;
-
+  console.log(userId);
+  console.log(req.body.userId);
   Sauce.findById(req.params.id)
     .then((sauce) => {
+      // To check wether the user has already liked/disliked this sauce
       const usersLikedIndex = sauce.usersLiked.indexOf(userId);
       const usersDislikedIndex = sauce.usersDisliked.indexOf(userId);
       switch (like) {
@@ -124,7 +130,7 @@ exports.likeSauce = (req, res, next) => {
           }
           break;
 
-        // Cancel like or dislike (like = 0)
+        // Cancel previous like or dislike (like = 0)
         case 0:
           if (usersDislikedIndex !== -1) {
             sauce.usersDisliked.splice(usersDislikedIndex, 1);

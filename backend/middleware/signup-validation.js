@@ -1,6 +1,7 @@
 const PasswordValidator = require('password-validator');
 const emailValidator = require('email-validator');
 
+// Password validation schema
 const schemaPassword = new PasswordValidator();
 schemaPassword
   .is()
@@ -19,6 +20,7 @@ schemaPassword
   .not()
   .spaces();
 
+// Check if email and password are valid and secured
 module.exports = (req, res, next) => {
   const emailIsValid = emailValidator.validate(req.body.email);
   const passwordIsValid = schemaPassword.validate(req.body.password);

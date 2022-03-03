@@ -52,7 +52,7 @@ app.use(xss());
 // Limit repeated requests from same id
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 150, // Limit each IP to 150 requests per `window`, here 1 hour
+  max: 100, // Limit each IP to 150 requests per `window`, here 1 hour
   message: 'Too many request from this IP, please try again in an hour',
 });
 app.use(limiter);
