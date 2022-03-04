@@ -10,14 +10,14 @@ const sauceSchema = mongoose.Schema({
     type: String,
     required: [true, 'A sauce must have a name'],
     minLength: [5, 'Sauce name must be at least 5 characters long'],
-    maxLength: [20, 'Sauce name must be less than 20 characters long'],
+    maxLength: [30, 'Sauce name must be less than 30 characters long'],
     trim: true,
   },
   manufacturer: {
     type: String,
     required: [true, 'A sauce must have a manufacturer'],
     minLength: [3, 'Sauce manufacturer must be at least 3 characters long'],
-    maxLength: [20, 'Sauce name must be less than 20 characters long'],
+    maxLength: [30, 'Sauce name must be less than 30 characters long'],
     trim: true,
   },
   description: {
