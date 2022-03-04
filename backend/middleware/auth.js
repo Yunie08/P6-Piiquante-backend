@@ -17,9 +17,6 @@ module.exports = (req, res, next) => {
     const { userId } = decodedToken;
     req.auth = { userId };
 
-    /////////////////////////////
-    console.log(req.body.userId, decodedToken);
-
     // if the userId in the token correspond to the userId provided in the request body
     if (
       (req.body.userId || req.body.userId === '') &&
