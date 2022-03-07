@@ -105,8 +105,6 @@ exports.modifySauce = (req, res, next) => {
 // LIKE and dislike handler
 exports.likeSauce = (req, res, next) => {
   const { userId, like } = req.body;
-  console.log(userId);
-  console.log(req.body.userId);
   Sauce.findById(req.params.id)
     .then((sauce) => {
       // To check wether the user has already liked/disliked this sauce
