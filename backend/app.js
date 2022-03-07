@@ -55,11 +55,10 @@ const limiter = rateLimit({
   max: 100, // Limit each IP to 150 requests per `window`, here 1 hour
   message: 'Too many request from this IP, please try again in an hour',
 });
-app.use(limiter);
 
 // Middleware declaration
 app.use('/images', express.static(path.join(__dirname, 'images')));
-app.use('/api/auth', userRoutes);
+app.use('/api/auth', limiter, userRoutes);
 app.use('/api/sauces', sauceRoutes);
 
 // Make app available
